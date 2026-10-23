@@ -1,9 +1,10 @@
-"""Controlled demonstration of the CodeGuard interception gate.
+"""CodeGuard execution-interception demo using the real detector.
 
-This demonstration uses predetermined assessment fixtures.
-It does not run the supplied source strings.
+Submitted code is analyzed as text and is NEVER executed.
+Only a harmless, pre-approved callback can be invoked.
 """
 
+from src.detector import evaluate_code
 from src.interceptor import guarded_operation
 
 
@@ -11,71 +12,54 @@ SAFE_CODE = 'print("Safe demonstration")'
 BLOCKED_CODE = "rm -rf /tmp/codeguard-demo"
 
 
-ASSESSMENTS = {
-    SAFE_CODE: {
-        "verdict": "allow",
-        "risk_score": 0.01,
-        "categories": [],
-        "code_language": "python",
-        "reason": "Predefined safe demonstration fixture.",
-        "vulnerable_lines": [],
-    },
-    BLOCKED_CODE: {
-        "verdict": "block",
-        "risk_score": 0.99,
-        "categories": ["destructive_command"],
-        "code_language": "bash",
-        "reason": "Predefined blocked demonstration fixture.",
-        "vulnerable_lines": [1],
-    },
-}
-
-
-def demo_evaluator(code: str) -> dict:
-    """Return a predetermined fixture; this is not a real detector."""
-
-    if code not in ASSESSMENTS:
-        raise ValueError("No assessment fixture exists for this input.")
-
-    return ASSESSMENTS[code]
-
-
 def main() -> None:
-    # The marker represents a harmless, approved operation.
-    # It does not execute the supplied source string.
+    # Test 1: Safe input
     safe_marker = {"called": False}
 
     safe_result = guarded_operation(
         SAFE_CODE,
-        demo_evaluator,
+        evaluate_code,
         lambda: safe_marker.__setitem__("called", True),
     )
 
-    print("SAFE CASE")
-    print(f"Result: {safe_result}")
-    print(f"Approved operation called: {safe_marker['called']}")
+    print("=== SAFE CASE ===")
+    print("Input:", SAFE_CODE)
+    print("Assessment:", evaluate_code(SAFE_CODE))
+    print("Interception:", safe_result)
+    print("Approved operation called:", safe_marker["called"])
 
-    # This marker must remain untouched because the assessment blocks.
+    # Test 2: Destructive command (analyzed only, never executed)
     blocked_marker = {"called": False}
 
     blocked_result = guarded_operation(
         BLOCKED_CODE,
-        demo_evaluator,
+        evaluate_code,
         lambda: blocked_marker.__setitem__("called", True),
     )
 
-    print("\nBLOCKED CASE")
-    print(f"Result: {blocked_result}")
-    print(f"Approved operation called: {blocked_marker['called']}")
+    print("\n=== BLOCKED CASE ===")
+    print("Input:", BLOCKED_CODE)
+    print("Assessment:", evaluate_code(BLOCKED_CODE))
+    print("Interception:", blocked_result)
+    print("Approved operation called:", blocked_marker["called"])
 
-    assert safe_result["decision"] == "allow"
-    assert safe_marker["called"] is True
+    # Verify the expected behavior.
+    assert safe_result["decision"] == "allow", (
+        f"Safe input was not allowed: {safe_result}"
+    )
+    assert safe_marker["called"] is True, (
+        "The approved operation should have been called for safe input."
+    )
 
-    assert blocked_result["decision"] == "block"
+    assert blocked_result["decision"] == "block", (
+        f"Destructive input was not blocked: {blocked_result}"
+    )
     assert blocked_result["operation_called"] is False
-    assert blocked_marker["called"] is False
+    assert blocked_marker["called"] is False, (
+        "SECURITY FAILURE: operation was called for blocked input!"
+    )
 
-    print("\nPASS: the interception gate behaved as expected.")
+    print("\nPASS: Real-detector interception checks succeeded.")
 
 
 if __name__ == "__main__":
