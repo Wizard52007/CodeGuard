@@ -221,50 +221,50 @@ def analyze(code: str) -> list[dict]:
                 "evidence": "AI-targeted instruction pattern",
             })
 
-    # ---------------------------------------------------------
+        # ---------------------------------------------------------
     # 2. Analyze supported fenced code blocks.
     # ---------------------------------------------------------
 
     for language, opening_line, block_code in _extract_fenced_blocks(code):
         analyzer = _load_analyzer(language)
 
-    try:
-        block_findings = analyzer(block_code)
-    except Exception as exc:
-        raise IncompleteAnalysisError(
-            f"Analysis failed for the {language!r} block "
-            f"starting at line {opening_line}."
-        ) from exc
-
-    if not isinstance(block_findings, list):
-        raise IncompleteAnalysisError(
-            f"The analyzer for {language!r} returned an invalid result."
-        )
-
-    for finding in block_findings:
-        if not isinstance(finding, dict):
+        try:
+            block_findings = analyzer(block_code)
+        except Exception as exc:
             raise IncompleteAnalysisError(
-                f"The analyzer for {language!r} returned an invalid finding."
+                f"Analysis failed for the {language!r} block "
+                f"starting at line {opening_line}."
+            ) from exc
+
+        if not isinstance(block_findings, list):
+            raise IncompleteAnalysisError(
+                f"The analyzer for {language!r} returned an invalid result."
             )
 
-        required_fields = {
-            "category",
-            "severity",
-            "reason",
-            "lines",
-            "evidence",
-        }
+        for finding in block_findings:
+            if not isinstance(finding, dict):
+                raise IncompleteAnalysisError(
+                    f"The analyzer for {language!r} returned an invalid finding."
+                )
 
-        if not required_fields.issubset(finding):
-            raise IncompleteAnalysisError(
-                f"The analyzer for {language!r} returned an "
-                "incomplete finding."
+            required_fields = {
+                "category",
+                "severity",
+                "reason",
+                "lines",
+                "evidence",
+            }
+
+            if not required_fields.issubset(finding):
+                raise IncompleteAnalysisError(
+                    f"The analyzer for {language!r} returned an "
+                    "incomplete finding."
+                )
+
+            add_finding(
+                finding,
+                line_offset=opening_line,
             )
-
-        add_finding(
-            finding,
-            line_offset=opening_line,
-        )
 
     return sorted(
         findings,
