@@ -7,7 +7,7 @@ All analysis is local; submitted code is never executed.
 from __future__ import annotations
 
 import importlib
-import re 
+import re
 
 class IncompleteAnalysisError(RuntimeError):
     """Raised when a required analyzer is unavailable or fails."""
