@@ -2,7 +2,14 @@
 
 from typing import Any
 
-from src.analyzers import bash_analyzer, python_analyzer, sql_analyzer
+from src.analyzers import (
+    bash_analyzer,
+    javascript_analyzer,
+    markdown_analyzer,
+    python_analyzer,
+    sql_analyzer,
+    yaml_analyzer,
+)
 from src.language_detector import detect_language
 from src.risk_engine import calculate_risk
 
@@ -60,6 +67,12 @@ def evaluate_code(
         findings.extend(bash_analyzer.analyze(code))
     elif detected_language == "sql":
         findings.extend(sql_analyzer.analyze(code))
+    elif detected_language == "javascript":
+        findings.extend(javascript_analyzer.analyze(code))
+    elif detected_language == "yaml":
+        findings.extend(yaml_analyzer.analyze(code))
+    elif detected_language == "markdown":
+        findings.extend(markdown_analyzer.analyze(code))
 
     risk = calculate_risk(findings)
 

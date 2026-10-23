@@ -37,7 +37,8 @@ def detect_language(code: str) -> str:
 
     # Bash
     if re.search(
-        r"(?m)^\s*(#!/bin/(ba)?sh|sudo|curl|wget|chmod|export)\b",
+        r"(?m)^\s*(#!/bin/(ba)?sh|sudo|curl|wget|chmod|rm|"
+        r"mkfs|wipefs|dd|export|nc|ncat)\b",
         text,
     ):
         return "bash"
