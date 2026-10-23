@@ -31,6 +31,18 @@ STARTUP_PATH_MARKERS = (
 
 MAX_SAFE_LITERAL_EXPONENT = 10000
 
+PACKAGE_INSTALL_COMMANDS = {
+    "pip",
+    "pip3",
+    "pip.exe",
+    "pip3.exe",
+}
+
+PACKAGE_INSTALL_SUBCOMMANDS = {
+    "install",
+    "download",
+}
+
 
 def _resolve_name(node: ast.AST, aliases: dict[str, str]) -> str:
     """Resolve a function name, accounting for imported aliases."""
@@ -82,6 +94,52 @@ def _string_value(node: ast.AST) -> str | None:
         return node.value
 
     return None
+
+
+def _command_parts(node: ast.AST) -> list[str] | None:
+    """Extract a literal command from a subprocess-style argument list."""
+
+    if not isinstance(node, (ast.List, ast.Tuple)):
+        return None
+
+    parts: list[str] = []
+
+    for element in node.elts:
+        value = _string_value(element)
+
+        if value is None:
+            return None
+
+        parts.append(value)
+
+    return parts
+
+
+def _is_package_install_command(parts: list[str]) -> bool:
+    """Check whether literal command arguments invoke pip installation."""
+
+    if not parts:
+        return False
+
+    executable = parts[0].replace("\\", "/").rsplit("/", 1)[-1].lower()
+    executable = executable.removesuffix(".exe")
+
+    # Recognize pip install ... and pip download ...
+    if executable in {"pip", "pip3"}:
+        return (
+            len(parts) >= 2
+            and parts[1].lower() in PACKAGE_INSTALL_SUBCOMMANDS
+        )
+
+    # Recognize python -m pip install ... and python3 -m pip install ...
+    if executable in {"python", "python3"}:
+        return (
+            len(parts) >= 4
+            and parts[1:3] == ["-m", "pip"]
+            and parts[3].lower() in PACKAGE_INSTALL_SUBCOMMANDS
+        )
+
+    return False
 
 
 def _is_unbounded_loop_test(node: ast.AST) -> bool:
@@ -160,6 +218,32 @@ def analyze(code: str) -> list[dict[str, Any]]:
 
         call_name = _resolve_name(node.func, aliases)
         line = node.lineno
+
+                # Detect recognizable dynamic package installation.
+        if call_name in {
+            "subprocess.run",
+            "subprocess.call",
+            "subprocess.Popen",
+            "subprocess.check_call",
+            "subprocess.check_output",
+        } and node.args:
+            parts = _command_parts(node.args[0])
+
+            if parts and _is_package_install_command(parts):
+                key = ("dependency_risk", line)
+
+                if key not in seen:
+                    seen.add(key)
+                    findings.append({
+                        "category": "dependency_risk",
+                        "severity": "medium",
+                        "reason": (
+                            "The code invokes a package installation or "
+                            "download command through a subprocess."
+                        ),
+                        "lines": [line],
+                        "evidence": "Subprocess package-management command",
+                    })
 
         if call_name in DANGEROUS_CALLS:
             key = ("destructive_command", line)

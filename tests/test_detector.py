@@ -207,3 +207,39 @@ def test_normal_for_loop_is_not_flagged_for_resource_exhaustion():
 
     assert "resource_exhaustion" not in result["categories"]
     assert result["verdict"] == "allow"
+
+
+def test_subprocess_pip_install_is_detected():
+    code = (
+        "import subprocess\n"
+        "subprocess.run(['pip', 'install', 'example-package'])"
+    )
+    result = evaluate_code(code, language="python")
+
+    assert "dependency_risk" in result["categories"]
+    assert 2 in result["vulnerable_lines"]
+
+
+def test_python_module_pip_install_is_detected():
+    code = (
+        "import subprocess\n"
+        "subprocess.run(['python', '-m', 'pip', 'install', 'example-package'])"
+    )
+    result = evaluate_code(code, language="python")
+
+    assert "dependency_risk" in result["categories"]
+    assert 2 in result["vulnerable_lines"]
+
+
+def test_ordinary_subprocess_command_is_not_dependency_risk():
+    code = "import subprocess\nsubprocess.run(['echo', 'hello'])"
+    result = evaluate_code(code, language="python")
+
+    assert "dependency_risk" not in result["categories"]
+
+
+def test_ordinary_import_is_not_dependency_risk():
+    code = "import requests\nprint('hello')"
+    result = evaluate_code(code, language="python")
+
+    assert "dependency_risk" not in result["categories"]
