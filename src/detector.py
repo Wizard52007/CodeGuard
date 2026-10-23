@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from src.analyzers import python_analyzer
+from src.analyzers import bash_analyzer, python_analyzer
 from src.language_detector import detect_language
 from src.risk_engine import calculate_risk
 
@@ -38,7 +38,10 @@ def evaluate_code(
     findings = []
 
     if detected_language == "python":
-        findings.extend(python_analyzer.analyze(code))
+     findings.extend(python_analyzer.analyze(code))
+
+    elif detected_language == "bash":
+     findings.extend(bash_analyzer.analyze(code))
 
     risk = calculate_risk(findings)
 
