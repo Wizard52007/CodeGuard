@@ -430,3 +430,31 @@ def test_benign_sql_query_is_allowed():
     assert result["code_language"] == "sql"
     assert result["verdict"] == "allow"
     assert result["categories"] == []
+
+
+def test_explicit_language_hint_is_normalized():
+    result = evaluate_code(
+        "print('hello')",
+        language=" PYTHON ",
+    )
+
+    assert result["code_language"] == "python"
+    assert result["verdict"] == "allow"
+
+
+def test_unsupported_language_hint_is_rejected():
+    with pytest.raises(ValueError, match="Unsupported language"):
+        evaluate_code(
+            "print('hello')",
+            language="ruby",
+        )
+
+
+def test_blank_language_hint_uses_detection():
+    result = evaluate_code(
+        "print('hello')",
+        language="   ",
+    )
+
+    assert result["code_language"] == "python"
+    assert result["verdict"] == "allow"

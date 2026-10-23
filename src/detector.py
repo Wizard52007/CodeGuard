@@ -19,32 +19,47 @@ def evaluate_code(
     if language is not None and not isinstance(language, str):
         raise TypeError("language must be a string or None")
 
+    normalized_language = (
+    language.strip().lower()
+    if language and language.strip()
+    else None
+)
+
+    if (
+       normalized_language is not None
+       and normalized_language not in {
+           "python",
+           "bash",
+           "javascript",
+           "sql",
+           "yaml",
+           "markdown",
+       }
+   ):
+        raise ValueError(
+           f"Unsupported language: {normalized_language}"
+        )
+
     if not code.strip():
         return {
             "verdict": "allow",
             "risk_score": 0.0,
             "categories": [],
-            "code_language": language or "unknown",
+            "code_language": normalized_language or "unknown",
             "reason": "Empty input; nothing to analyze.",
             "vulnerable_lines": [],
         }
 
-    detected_language = (
-        language.strip().lower()
-        if language and language.strip()
-        else detect_language(code)
-    )
+    detected_language = normalized_language or detect_language(code)
 
     findings = []
 
     if detected_language == "python":
-     findings.extend(python_analyzer.analyze(code))
-
+        findings.extend(python_analyzer.analyze(code))
     elif detected_language == "bash":
-     findings.extend(bash_analyzer.analyze(code))
-
+        findings.extend(bash_analyzer.analyze(code))
     elif detected_language == "sql":
-     findings.extend(sql_analyzer.analyze(code))
+        findings.extend(sql_analyzer.analyze(code))
 
     risk = calculate_risk(findings)
 
