@@ -41,7 +41,13 @@ OBFUSCATED_EXECUTION_PATTERNS = [
 
 # Common, recognizable privilege-escalation or persistence indicators.
 PERSISTENCE_PATTERNS = [
-    re.compile(r"(?<!\S)chmod\s+[ugo]*s[ugo]*\b"),
+    # Detect setuid/setgid permissions, including chmod u+s and chmod g+s.
+    re.compile(
+        r"\bchmod\b[^\n]*\b(?:[ugoa]*\+[rwxXstugo]*s|[ugo]*s[ugo]*)\b",
+        re.IGNORECASE,
+    ),
+
+    # Detect modifications to privileged startup/configuration files.
     re.compile(r">\s*/etc/(?:sudoers|profile|bash\.bashrc)\b"),
     re.compile(r">>\s*~?/\.bashrc\b"),
     re.compile(r">\s*~?/\.config/autostart/"),

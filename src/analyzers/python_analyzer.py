@@ -1,7 +1,7 @@
-
 """AST-based Python security analyzer."""
 
 import ast
+import re
 from typing import Any
 
 
@@ -30,6 +30,23 @@ STARTUP_PATH_MARKERS = (
 )
 
 MAX_SAFE_LITERAL_EXPONENT = 10000
+
+SECRET_NAME_PATTERN = re.compile(
+    r"(?:API[_-]?KEY|SECRET|TOKEN|PASSWORD|PASSWD|"
+    r"ACCESS[_-]?KEY|PRIVATE[_-]?KEY|CLIENT[_-]?SECRET)",
+    re.IGNORECASE,
+)
+
+SECRET_PLACEHOLDERS = {
+    "changeme",
+    "change_me",
+    "placeholder",
+    "redacted",
+    "example",
+    "your_secret",
+    "your_token",
+    "your_password",
+}
 
 PACKAGE_INSTALL_COMMANDS = {
     "pip",
@@ -173,45 +190,121 @@ def analyze(code: str) -> list[dict[str, Any]]:
         return []
 
     aliases = _collect_import_aliases(tree)
+
+    # Initialize these ONCE, before any analyzer rules run.
     findings: list[dict[str, Any]] = []
     seen: set[tuple[str, int]] = set()
 
-        # Detect potentially unbounded loops.
+    # Detect hardcoded values assigned to variables with sensitive names.
     for node in ast.walk(tree):
-        if isinstance(node, ast.While) and _is_unbounded_loop_test(node.test):
+        if not isinstance(node, (ast.Assign, ast.AnnAssign, ast.NamedExpr)):
+            continue
+
+        value_node = node.value
+
+        if not isinstance(value_node, ast.Constant):
+            continue
+
+        value = value_node.value
+
+        if not isinstance(value, str) or len(value.strip()) < 8:
+            continue
+
+        targets = (
+            node.targets
+            if isinstance(node, ast.Assign)
+            else [node.target]
+        )
+
+        for target in targets:
+            if not isinstance(target, ast.Name):
+                continue
+
+            if not SECRET_NAME_PATTERN.search(target.id):
+                continue
+
+            normalized_value = value.strip().lower()
+
+            if (
+                normalized_value in SECRET_PLACEHOLDERS
+                or normalized_value.startswith(
+                    ("your_", "<", "${", "placeholder")
+                )
+            ):
+                continue
+
+            line = node.lineno
+            key = ("secret_access", line)
+
+            if key in seen:
+                continue
+
+            seen.add(key)
+
+            findings.append(
+                {
+                    "category": "secret_access",
+                    "severity": "high",
+                    "reason": (
+                        "A variable with a sensitive name is assigned a "
+                        "hardcoded string value."
+                    ),
+                    "lines": [line],
+                    "evidence": "Hardcoded-secret assignment pattern",
+                }
+            )
+
+    # Detect potentially unbounded loops.
+    for node in ast.walk(tree):
+        if (
+            isinstance(node, ast.While)
+            and _is_unbounded_loop_test(node.test)
+        ):
             key = ("resource_exhaustion", node.lineno)
 
             if key not in seen:
                 seen.add(key)
-                findings.append({
-                    "category": "resource_exhaustion",
-                    "severity": "high",
-                    "reason": (
-                        "The code contains a while True loop that may "
-                        "continue indefinitely without an exit condition."
-                    ),
-                    "lines": [node.lineno],
-                    "evidence": "while True",
-                })
+
+                findings.append(
+                    {
+                        "category": "resource_exhaustion",
+                        "severity": "high",
+                        "reason": (
+                            "The code contains a while True loop that may "
+                            "continue indefinitely without an exit condition."
+                        ),
+                        "lines": [node.lineno],
+                        "evidence": "while True",
+                    }
+                )
 
     # Detect potentially excessive literal exponentiation.
     for node in ast.walk(tree):
-        if isinstance(node, ast.BinOp) and _is_suspicious_exponent(node):
+        if (
+            isinstance(node, ast.BinOp)
+            and _is_suspicious_exponent(node)
+        ):
             key = ("resource_exhaustion", node.lineno)
 
             if key not in seen:
                 seen.add(key)
-                findings.append({
-                    "category": "resource_exhaustion",
-                    "severity": "high",
-                    "reason": (
-                        "The code uses an unusually large literal exponent, "
-                        "which may cause excessive CPU or memory consumption."
-                    ),
-                    "lines": [node.lineno],
-                    "evidence": "Exponentiation with a large literal exponent",
-                })
 
+                findings.append(
+                    {
+                        "category": "resource_exhaustion",
+                        "severity": "high",
+                        "reason": (
+                            "The code uses an unusually large literal exponent, "
+                            "which may cause excessive CPU or memory consumption."
+                        ),
+                        "lines": [node.lineno],
+                        "evidence": (
+                            "Exponentiation with a large literal exponent"
+                        ),
+                    }
+                )
+
+    # Inspect function calls without executing the submitted code.
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
             continue
@@ -219,14 +312,18 @@ def analyze(code: str) -> list[dict[str, Any]]:
         call_name = _resolve_name(node.func, aliases)
         line = node.lineno
 
-                # Detect recognizable dynamic package installation.
-        if call_name in {
-            "subprocess.run",
-            "subprocess.call",
-            "subprocess.Popen",
-            "subprocess.check_call",
-            "subprocess.check_output",
-        } and node.args:
+        # Detect recognizable dynamic package installation.
+        if (
+            call_name
+            in {
+                "subprocess.run",
+                "subprocess.call",
+                "subprocess.Popen",
+                "subprocess.check_call",
+                "subprocess.check_output",
+            }
+            and node.args
+        ):
             parts = _command_parts(node.args[0])
 
             if parts and _is_package_install_command(parts):
@@ -234,67 +331,84 @@ def analyze(code: str) -> list[dict[str, Any]]:
 
                 if key not in seen:
                     seen.add(key)
-                    findings.append({
-                        "category": "dependency_risk",
-                        "severity": "medium",
-                        "reason": (
-                            "The code invokes a package installation or "
-                            "download command through a subprocess."
-                        ),
-                        "lines": [line],
-                        "evidence": "Subprocess package-management command",
-                    })
 
+                    findings.append(
+                        {
+                            "category": "dependency_risk",
+                            "severity": "medium",
+                            "reason": (
+                                "The code invokes a package installation or "
+                                "download command through a subprocess."
+                            ),
+                            "lines": [line],
+                            "evidence": (
+                                "Subprocess package-management command"
+                            ),
+                        }
+                    )
+
+        # Detect destructive file and directory operations.
         if call_name in DANGEROUS_CALLS:
             key = ("destructive_command", line)
 
             if key not in seen:
                 seen.add(key)
-                findings.append({
-                    "category": "destructive_command",
-                    "severity": "high",
-                    "reason": (
-                        f"The code calls {call_name}, which can "
-                        f"{DANGEROUS_CALLS[call_name].lower()}"
-                    ),
-                    "lines": [line],
-                    "evidence": call_name,
-                })
 
+                findings.append(
+                    {
+                        "category": "destructive_command",
+                        "severity": "high",
+                        "reason": (
+                            f"The code calls {call_name}, which can "
+                            f"{DANGEROUS_CALLS[call_name].lower()}"
+                        ),
+                        "lines": [line],
+                        "evidence": call_name,
+                    }
+                )
+
+        # Detect dynamic execution.
         if call_name in DYNAMIC_EXECUTION_CALLS:
             key = ("obfuscated_execution", line)
 
             if key not in seen:
                 seen.add(key)
-                findings.append({
-                    "category": "obfuscated_execution",
-                    "severity": "high",
-                    "reason": (
-                        f"The code uses {call_name}() to evaluate "
-                        "a dynamically supplied expression."
-                    ),
-                    "lines": [line],
-                    "evidence": f"{call_name}()",
-                })
 
+                findings.append(
+                    {
+                        "category": "obfuscated_execution",
+                        "severity": "high",
+                        "reason": (
+                            f"The code uses {call_name}() to evaluate "
+                            "a dynamically supplied expression."
+                        ),
+                        "lines": [line],
+                        "evidence": f"{call_name}()",
+                    }
+                )
+
+        # Detect privilege-changing operations.
         if call_name in PRIVILEGE_CALLS:
             key = ("persistence_or_privesc", line)
 
             if key not in seen:
                 seen.add(key)
-                findings.append({
-                    "category": "persistence_or_privesc",
-                    "severity": "high",
-                    "reason": (
-                        f"The code calls {call_name}, which changes "
-                        "process identity or group privileges."
-                    ),
-                    "lines": [line],
-                    "evidence": call_name,
-                })
+
+                findings.append(
+                    {
+                        "category": "persistence_or_privesc",
+                        "severity": "high",
+                        "reason": (
+                            f"The code calls {call_name}, which changes "
+                            "process identity or group privileges."
+                        ),
+                        "lines": [line],
+                        "evidence": call_name,
+                    }
+                )
 
     # Inspect literal paths used in file-opening calls.
-    # This is only a narrow first-pass check, not full persistence analysis.
+    # This is a narrow first-pass check, not full persistence analysis.
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
             continue
@@ -305,27 +419,34 @@ def analyze(code: str) -> list[dict[str, Any]]:
             continue
 
         path = _string_value(node.args[0])
+
         if path is None:
             continue
 
         normalized_path = path.replace("\\", "/")
 
-        if not any(marker in normalized_path for marker in STARTUP_PATH_MARKERS):
+        if not any(
+            marker in normalized_path
+            for marker in STARTUP_PATH_MARKERS
+        ):
             continue
 
         key = ("persistence_or_privesc", node.lineno)
 
         if key not in seen:
             seen.add(key)
-            findings.append({
-                "category": "persistence_or_privesc",
-                "severity": "medium",
-                "reason": (
-                    "The code opens a file under a recognized "
-                    "startup-related configuration path."
-                ),
-                "lines": [node.lineno],
-                "evidence": "Startup-related path",
-            })
+
+            findings.append(
+                {
+                    "category": "persistence_or_privesc",
+                    "severity": "medium",
+                    "reason": (
+                        "The code opens a file under a recognized "
+                        "startup-related configuration path."
+                    ),
+                    "lines": [node.lineno],
+                    "evidence": "Startup-related path",
+                }
+            )
 
     return findings

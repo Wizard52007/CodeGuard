@@ -212,7 +212,7 @@ def analyze(code: str) -> list[dict]:
         if AI_TARGETED_INSTRUCTION.search(line):
             add_finding({
                 "category": "ai_targeted_instructions",
-                "severity": "medium",
+                "severity": "high",
                 "reason": (
                     "The document contains instruction-like text that may "
                     "attempt to override an AI agent's security behavior."

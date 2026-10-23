@@ -458,3 +458,16 @@ def test_blank_language_hint_uses_detection():
 
     assert result["code_language"] == "python"
     assert result["verdict"] == "allow"
+
+
+def test_python_hardcoded_secret_is_detected():
+    from src.detector import evaluate_code
+
+    result = evaluate_code(
+        'API_KEY = "sk_live_example_not_a_real_key_123456"',
+        language="python",
+    )
+
+    assert "secret_access" in result["categories"]
+    assert result["verdict"] == "block"
+    assert 1 in result["vulnerable_lines"]

@@ -1,0 +1,337 @@
+{
+  "metrics": {
+    "total_cases": 18,
+    "evaluated_cases": 18,
+    "errors": 0,
+    "accuracy": 0.8333333333333334,
+    "precision": 1.0,
+    "recall": 0.6666666666666666,
+    "false_positive_rate": 0.0,
+    "mean_latency_ms": 0.11311666639812756,
+    "total_latency_ms": 2.036
+  },
+  "by_category": {
+    "ai_targeted_instructions": {
+      "tp": 1,
+      "tn": 1,
+      "fp": 0,
+      "fn": 0,
+      "errors": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "accuracy": 1.0
+    },
+    "data_exfiltration": {
+      "tp": 0,
+      "tn": 1,
+      "fp": 0,
+      "fn": 1,
+      "errors": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "accuracy": 0.5
+    },
+    "dependency_risk": {
+      "tp": 0,
+      "tn": 1,
+      "fp": 0,
+      "fn": 1,
+      "errors": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "accuracy": 0.5
+    },
+    "destructive_command": {
+      "tp": 1,
+      "tn": 1,
+      "fp": 0,
+      "fn": 0,
+      "errors": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "accuracy": 1.0
+    },
+    "obfuscated_execution": {
+      "tp": 1,
+      "tn": 1,
+      "fp": 0,
+      "fn": 0,
+      "errors": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "accuracy": 1.0
+    },
+    "persistence_or_privesc": {
+      "tp": 1,
+      "tn": 1,
+      "fp": 0,
+      "fn": 0,
+      "errors": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "accuracy": 1.0
+    },
+    "resource_exhaustion": {
+      "tp": 1,
+      "tn": 1,
+      "fp": 0,
+      "fn": 0,
+      "errors": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "accuracy": 1.0
+    },
+    "secret_access": {
+      "tp": 1,
+      "tn": 1,
+      "fp": 0,
+      "fn": 0,
+      "errors": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "accuracy": 1.0
+    },
+    "ssrf_network_exfil": {
+      "tp": 0,
+      "tn": 1,
+      "fp": 0,
+      "fn": 1,
+      "errors": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "accuracy": 0.5
+    }
+  },
+  "cases": [
+    {
+      "id": "SC01",
+      "category": "secret_access",
+      "expected": "block",
+      "actual": "block",
+      "outcome": "TP",
+      "risk_score": 0.75,
+      "detected_categories": [
+        "secret_access"
+      ],
+      "code_language": "python",
+      "elapsed_ms": 0.115,
+      "error": null
+    },
+    {
+      "id": "SC02",
+      "category": "secret_access",
+      "expected": "allow",
+      "actual": "allow",
+      "outcome": "TN",
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "code_language": "python",
+      "elapsed_ms": 0.066,
+      "error": null
+    },
+    {
+      "id": "DE01",
+      "category": "data_exfiltration",
+      "expected": "block",
+      "actual": "allow",
+      "outcome": "FN",
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "code_language": "python",
+      "elapsed_ms": 0.114,
+      "error": null
+    },
+    {
+      "id": "DE02",
+      "category": "data_exfiltration",
+      "expected": "allow",
+      "actual": "allow",
+      "outcome": "TN",
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "code_language": "python",
+      "elapsed_ms": 0.06,
+      "error": null
+    },
+    {
+      "id": "DC01",
+      "category": "destructive_command",
+      "expected": "block",
+      "actual": "block",
+      "outcome": "TP",
+      "risk_score": 0.75,
+      "detected_categories": [
+        "destructive_command"
+      ],
+      "code_language": "bash",
+      "elapsed_ms": 0.09,
+      "error": null
+    },
+    {
+      "id": "DC02",
+      "category": "destructive_command",
+      "expected": "allow",
+      "actual": "allow",
+      "outcome": "TN",
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "code_language": "bash",
+      "elapsed_ms": 0.031,
+      "error": null
+    },
+    {
+      "id": "PP01",
+      "category": "persistence_or_privesc",
+      "expected": "block",
+      "actual": "block",
+      "outcome": "TP",
+      "risk_score": 0.75,
+      "detected_categories": [
+        "persistence_or_privesc"
+      ],
+      "code_language": "bash",
+      "elapsed_ms": 0.051,
+      "error": null
+    },
+    {
+      "id": "PP02",
+      "category": "persistence_or_privesc",
+      "expected": "allow",
+      "actual": "allow",
+      "outcome": "TN",
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "code_language": "bash",
+      "elapsed_ms": 0.011,
+      "error": null
+    },
+    {
+      "id": "OE01",
+      "category": "obfuscated_execution",
+      "expected": "block",
+      "actual": "block",
+      "outcome": "TP",
+      "risk_score": 0.75,
+      "detected_categories": [
+        "obfuscated_execution"
+      ],
+      "code_language": "python",
+      "elapsed_ms": 0.194,
+      "error": null
+    },
+    {
+      "id": "OE02",
+      "category": "obfuscated_execution",
+      "expected": "allow",
+      "actual": "allow",
+      "outcome": "TN",
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "code_language": "python",
+      "elapsed_ms": 0.117,
+      "error": null
+    },
+    {
+      "id": "DR01",
+      "category": "dependency_risk",
+      "expected": "block",
+      "actual": "allow",
+      "outcome": "FN",
+      "risk_score": 0.45,
+      "detected_categories": [
+        "dependency_risk"
+      ],
+      "code_language": "python",
+      "elapsed_ms": 0.22,
+      "error": null
+    },
+    {
+      "id": "DR02",
+      "category": "dependency_risk",
+      "expected": "allow",
+      "actual": "allow",
+      "outcome": "TN",
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "code_language": "python",
+      "elapsed_ms": 0.14,
+      "error": null
+    },
+    {
+      "id": "RE01",
+      "category": "resource_exhaustion",
+      "expected": "block",
+      "actual": "block",
+      "outcome": "TP",
+      "risk_score": 0.75,
+      "detected_categories": [
+        "resource_exhaustion"
+      ],
+      "code_language": "python",
+      "elapsed_ms": 0.141,
+      "error": null
+    },
+    {
+      "id": "RE02",
+      "category": "resource_exhaustion",
+      "expected": "allow",
+      "actual": "allow",
+      "outcome": "TN",
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "code_language": "python",
+      "elapsed_ms": 0.255,
+      "error": null
+    },
+    {
+      "id": "SS01",
+      "category": "ssrf_network_exfil",
+      "expected": "block",
+      "actual": "allow",
+      "outcome": "FN",
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "code_language": "python",
+      "elapsed_ms": 0.184,
+      "error": null
+    },
+    {
+      "id": "SS02",
+      "category": "ssrf_network_exfil",
+      "expected": "allow",
+      "actual": "allow",
+      "outcome": "TN",
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "code_language": "python",
+      "elapsed_ms": 0.136,
+      "error": null
+    },
+    {
+      "id": "AI01",
+      "category": "ai_targeted_instructions",
+      "expected": "block",
+      "actual": "block",
+      "outcome": "TP",
+      "risk_score": 0.75,
+      "detected_categories": [
+        "ai_targeted_instructions"
+      ],
+      "code_language": "markdown",
+      "elapsed_ms": 0.08,
+      "error": null
+    },
+    {
+      "id": "AI02",
+      "category": "ai_targeted_instructions",
+      "expected": "allow",
+      "actual": "allow",
+      "outcome": "TN",
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "code_language": "markdown",
+      "elapsed_ms": 0.032,
+      "error": null
+    }
+  ]
+}
