@@ -331,3 +331,102 @@ def test_bash_download_to_shell_is_blocked():
     assert result["code_language"] == "bash"
     assert result["verdict"] == "block"
     assert "obfuscated_execution" in result["categories"]
+
+
+def test_sql_drop_table_is_detected():
+    from src.analyzers.sql_analyzer import analyze
+
+    findings = analyze("DROP TABLE users;")
+
+    assert any(
+        finding["category"] == "destructive_command"
+        for finding in findings
+    )
+
+
+def test_sql_truncate_table_is_detected():
+    from src.analyzers.sql_analyzer import analyze
+
+    findings = analyze("TRUNCATE TABLE sessions;")
+
+    assert any(
+        finding["category"] == "destructive_command"
+        for finding in findings
+    )
+
+
+def test_sql_comment_is_not_flagged():
+    from src.analyzers.sql_analyzer import analyze
+
+    findings = analyze("-- DROP TABLE users;\nSELECT id FROM users;")
+
+    assert not any(
+        finding["category"] == "destructive_command"
+        for finding in findings
+    )
+
+
+def test_sql_select_star_is_reported_for_review():
+    from src.analyzers.sql_analyzer import analyze
+
+    findings = analyze("SELECT * FROM users;")
+
+    assert any(
+        finding["category"] == "data_exfiltration"
+        for finding in findings
+    )
+
+
+def test_sql_findings_use_shared_schema():
+    from src.analyzers.sql_analyzer import analyze
+
+    findings = analyze("DROP TABLE users;")
+
+    assert findings
+
+    for finding in findings:
+        assert set(finding) == {
+            "category",
+            "severity",
+            "reason",
+            "lines",
+            "evidence",
+        }
+        assert all(
+            isinstance(line, int) and line > 0
+            for line in finding["lines"]
+        )
+
+
+def test_sql_drop_table_is_blocked_through_detector():
+    result = evaluate_code(
+        "DROP TABLE users;",
+        language="sql",
+    )
+
+    assert result["code_language"] == "sql"
+    assert "destructive_command" in result["categories"]
+    assert result["verdict"] == "block"
+    assert 1 in result["vulnerable_lines"]
+
+
+def test_sql_select_star_is_allowed_for_review():
+    result = evaluate_code(
+        "SELECT * FROM users;",
+        language="sql",
+    )
+
+    assert result["code_language"] == "sql"
+    assert "data_exfiltration" in result["categories"]
+    assert result["verdict"] == "allow"
+
+
+def test_benign_sql_query_is_allowed():
+    result = evaluate_code(
+        "SELECT id FROM users WHERE id = 1;",
+        language="sql",
+    )
+
+    assert result["code_language"] == "sql"
+    assert result["verdict"] == "allow"
+    assert result["categories"] == []
