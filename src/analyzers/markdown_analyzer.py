@@ -9,6 +9,9 @@ from __future__ import annotations
 import importlib
 import re
 
+from src.rules import prompt_injection
+
+
 class IncompleteAnalysisError(RuntimeError):
     """Raised when a required analyzer is unavailable or fails."""
 
@@ -43,19 +46,6 @@ LANGUAGE_MODULES = {
 }
 
 OPENING_FENCE = re.compile(r"^\s{0,3}(`{3,}|~{3,})(.*)$")
-
-AI_TARGETED_INSTRUCTION = re.compile(
-    r"\bignore\s+(?:all\s+)?(?:previous|prior|preceding)\s+instructions\b"
-    r"|\bdisregard\s+(?:all\s+)?(?:previous|prior)\s+instructions\b"
-    r"|\breveal\s+(?:the\s+)?(?:secrets|credentials|system prompt)\b"
-    r"|\bbypass\s+(?:the\s+)?security\s+(?:checks|rules|review)\b"
-    r"|\bdisable\s+(?:all\s+)?security\s+(?:checks|rules)\b"
-    r"|\bhide\s+(?:this|the)\s+(?:vulnerability|malicious code|threat)\b"
-    r"|\boverride\s+(?:your\s+)?(?:safety|security)\s+(?:rules|instructions)\b"
-    r"|\bdo not report\s+(?:this|the)\s+(?:vulnerability|threat)\b",
-    re.IGNORECASE,
-)
-
 
 def _extract_fenced_blocks(code: str) -> list[tuple[str, int, str]]:
     """Return (language, opening_fence_line, block_code) tuples.
@@ -208,20 +198,10 @@ def analyze(code: str) -> list[dict]:
     # 1. Detect AI-targeted instructions in Markdown content.
     # ---------------------------------------------------------
 
-    for line_number, line in enumerate(lines, start=1):
-        if AI_TARGETED_INSTRUCTION.search(line):
-            add_finding({
-                "category": "ai_targeted_instructions",
-                "severity": "high",
-                "reason": (
-                    "The document contains instruction-like text that may "
-                    "attempt to override an AI agent's security behavior."
-                ),
-                "lines": [line_number],
-                "evidence": "AI-targeted instruction pattern",
-            })
+    for finding in prompt_injection.analyze(code):
+        add_finding(finding)
 
-        # ---------------------------------------------------------
+    # ---------------------------------------------------------
     # 2. Analyze supported fenced code blocks.
     # ---------------------------------------------------------
 

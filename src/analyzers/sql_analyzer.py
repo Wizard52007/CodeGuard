@@ -72,6 +72,50 @@ def _remove_comments(sql: str) -> str:
     return sql
 
 
+UNSCOPED_STATEMENT = re.compile(
+    r"\bDELETE\s+FROM\s+[^\s;]+"
+    r"|\bUPDATE\s+[^\s;(]+\s+SET\b",
+    re.IGNORECASE,
+)
+
+WHERE_CLAUSE = re.compile(r"\bWHERE\b(?P<condition>[^;]*)", re.IGNORECASE)
+
+# A condition that is always true does not limit the affected rows.
+ALWAYS_TRUE_CONDITION = re.compile(
+    r"^\s*\(*\s*(?:1\s*=\s*1|true)\s*\)*\s*$",
+    re.IGNORECASE,
+)
+
+
+def _mask_string_literals(sql: str) -> str:
+    """Blank out quoted text while keeping offsets and line numbers."""
+
+    def blank(match: re.Match[str]) -> str:
+        return re.sub(r"[^\n]", " ", match.group(0))
+
+    return re.sub(r"'(?:[^']|'')*'", blank, sql)
+
+
+def _unscoped_statement_lines(sql: str) -> list[tuple[int, str]]:
+    """Find DELETE and UPDATE statements that have no limiting WHERE."""
+
+    masked = _mask_string_literals(sql)
+    results: list[tuple[int, str]] = []
+
+    for match in UNSCOPED_STATEMENT.finditer(masked):
+        end = masked.find(";", match.end())
+        statement = masked[match.start():] if end == -1 else masked[match.start():end]
+        where = WHERE_CLAUSE.search(statement)
+
+        if where and not ALWAYS_TRUE_CONDITION.match(where.group("condition")):
+            continue
+
+        kind = "DELETE" if match.group(0).upper().startswith("DELETE") else "UPDATE"
+        results.append((masked.count("\n", 0, match.start()) + 1, kind))
+
+    return results
+
+
 def analyze(code: str) -> list[dict[str, Any]]:
     """Analyze SQL source and return findings using the shared schema."""
 
@@ -79,6 +123,25 @@ def analyze(code: str) -> list[dict[str, Any]]:
     seen: set[tuple[str, int]] = set()
 
     sql = _remove_comments(code)
+
+    for line_number, kind in _unscoped_statement_lines(sql):
+        key = ("destructive_command", line_number)
+
+        if key in seen:
+            continue
+
+        seen.add(key)
+
+        findings.append({
+            "category": "destructive_command",
+            "severity": "high",
+            "reason": (
+                f"The query contains a {kind} statement without a limiting "
+                "WHERE clause, so it affects every row in the table."
+            ),
+            "lines": [line_number],
+            "evidence": f"{kind} without WHERE",
+        })
 
     for rule in RULES:
         for match in rule["pattern"].finditer(sql):

@@ -58,6 +58,41 @@ RESOURCE_EXHAUSTION_PATTERNS = [
     re.compile(r":\s*\(\s*\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;\s*:")
 ]
 
+# An endless data source written to a file fills the disk. Writing to
+# /dev/null is excluded because it consumes no storage.
+UNBOUNDED_WRITE_PATTERNS = [
+    re.compile(
+        r"(?<!\S)cat\s+/dev/(?:zero|u?random)\s*>{1,2}\s*"
+        r"(?!/dev/null(?:\s|$))\S+"
+    ),
+    re.compile(
+        r"(?<!\S)yes\b[^|;&\n>]*>{1,2}\s*(?!/dev/null(?:\s|$))[^\s&]+"
+    ),
+]
+
+DD_COMMAND = re.compile(r"(?<!\S)dd\b(?P<arguments>[^|;&\n]*)")
+DD_ENDLESS_INPUT = re.compile(r"\bif=/dev/(?:zero|u?random)\b")
+DD_SIZE_LIMIT = re.compile(r"\bcount=\d|\biflag=\S*count_bytes")
+
+
+def _is_unbounded_write(line: str) -> bool:
+    """Detect endless input being written without a size limit."""
+
+    if any(pattern.search(line) for pattern in UNBOUNDED_WRITE_PATTERNS):
+        return True
+
+    for match in DD_COMMAND.finditer(line):
+        arguments = match.group("arguments")
+
+        if (
+            DD_ENDLESS_INPUT.search(arguments)
+            and not DD_SIZE_LIMIT.search(arguments)
+        ):
+            return True
+
+    return False
+
+
 # Basic data-transfer patterns. These are signals, not proof of exfiltration.
 NETWORK_TRANSFER_PATTERNS = [
     re.compile(r"\b(?:curl|wget)\b.*(?:https?://|ftp://)", re.IGNORECASE),
@@ -199,6 +234,20 @@ def analyze(code: str) -> list[dict[str, Any]]:
                     line_number=line_number,
                     evidence="Recognizable fork-bomb pattern",
                 )
+
+        if _is_unbounded_write(line):
+            _add_finding(
+                findings,
+                seen,
+                category="resource_exhaustion",
+                severity="high",
+                reason=(
+                    "The command writes an endless data source without a "
+                    "size limit, which can fill the available disk space."
+                ),
+                line_number=line_number,
+                evidence="Unbounded write from an endless data source",
+            )
 
         for pattern in NETWORK_TRANSFER_PATTERNS:
             match = pattern.search(line)

@@ -118,9 +118,9 @@ def evaluate_code(
         findings.extend(data_exfiltration.analyze(code))
         findings.extend(ssrf_network_exfil.analyze(code))
 
-    # Markdown already performs AI-targeted instruction detection.
-    if detected_language != "markdown":
-        findings.extend(prompt_injection.analyze(code))
+    # Instruction-override text can appear in any language. Findings that an
+    # analyzer already reported for the same lines are removed below.
+    findings.extend(prompt_injection.analyze(code))
 
     # Remove duplicates before calculating risk.
     findings = _deduplicate_findings(findings)

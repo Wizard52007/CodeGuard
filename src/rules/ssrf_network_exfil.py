@@ -6,6 +6,7 @@ or executes submitted code.
 
 from __future__ import annotations
 
+import ipaddress
 import re
 
 
@@ -38,7 +39,8 @@ ASSIGNMENT = re.compile(
 NETWORK_SINK = re.compile(
     r"\bfetch\s*\("
     r"|\baxios(?:\s*\.\s*[A-Za-z_$][A-Za-z0-9_$]*)?\s*\("
-    r"|\brequests\s*\.\s*(?:get|post|put|patch|delete|request)\s*\("
+    r"|\brequests\s*\.\s*(?:get|post|put|patch|delete|head|request)\s*\("
+    r"|\bhttpx\s*\.\s*(?:get|post|put|patch|delete|head|request)\s*\("
     r"|\bhttp\s*\.\s*(?:get|request)\s*\("
     r"|\bhttps\s*\.\s*(?:get|request)\s*\("
     r"|\burlopen\s*\("
@@ -56,7 +58,50 @@ CLOUD_METADATA_DESTINATION = re.compile(
     re.IGNORECASE,
 )
 
+LITERAL_ASSIGNMENT = re.compile(
+    r"^\s*(?:(?:const|let|var)\s+)?"
+    r"([A-Za-z_$][A-Za-z0-9_$]*)\s*"
+    r"(?::\s*[A-Za-z_][\w\[\], .|]*)?"
+    r"=(?!=)\s*[rRbBuUfF]{0,2}"
+    r"([\"'`])(?P<value>.*?)\2"
+)
+
+URL_PATTERN = re.compile(
+    r"(?P<scheme>[A-Za-z][A-Za-z0-9+.-]*)://"
+    r"(?P<authority>[^/\s'\"`)>?#\\]*)"
+)
+
+IDENTIFIER_PATTERN = re.compile(r"[A-Za-z_$][A-Za-z0-9_$]*")
+
+# Schemes that are rarely needed for ordinary web requests and are commonly
+# abused to reach internal services. Plain http(s) is judged by host instead.
+SUSPICIOUS_SCHEMES = {
+    "gopher",
+    "dict",
+    "file",
+    "tftp",
+    "ldap",
+    "ldaps",
+    "jar",
+    "netdoc",
+}
+
+INTERNAL_HOST_SUFFIXES = (".localhost", ".internal", ".local")
+
+MAX_CALL_CONTINUATION_LINES = 8
+
 COMMENT_PREFIXES = ("#", "//", "--")
+
+SCHEME_REASON = (
+    "A network request uses a non-HTTP URL scheme that is commonly used to "
+    "reach internal services. Verify that the destination is expected."
+)
+
+INTERNAL_HOST_REASON = (
+    "A network request targets a loopback, private, or internal host. "
+    "Verify that the destination is expected and cannot be influenced by "
+    "untrusted input."
+)
 
 UNTRUSTED_REASON = (
     "A network request appears to use a destination derived from potentially "
@@ -86,6 +131,204 @@ def _contains_identifier(line: str, identifier: str) -> bool:
         )
         is not None
     )
+
+
+def _split_arguments(text: str) -> tuple[list[str], bool]:
+    """Split call arguments at top-level commas.
+
+    Returns the arguments and whether the closing parenthesis was found.
+    """
+
+    arguments: list[str] = []
+    current: list[str] = []
+    depth = 0
+    quote: str | None = None
+    escaped = False
+
+    for char in text:
+        if escaped:
+            escaped = False
+            current.append(char)
+            continue
+
+        if quote:
+            current.append(char)
+
+            if char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+
+            continue
+
+        if char in {"'", '"', "`"}:
+            quote = char
+        elif char in "([{":
+            depth += 1
+        elif char in ")]}":
+            if depth == 0:
+                arguments.append("".join(current).strip())
+                return arguments, True
+
+            depth -= 1
+        elif char == "," and depth == 0:
+            arguments.append("".join(current).strip())
+            current = []
+            continue
+
+        current.append(char)
+
+    arguments.append("".join(current).strip())
+
+    return arguments, False
+
+
+def _destination_candidates(
+    active_lines: dict[int, str],
+    number: int,
+    match: re.Match[str],
+) -> list[str]:
+    """Return the expressions that select a request's destination."""
+
+    line = active_lines[number]
+
+    if not match.group(0).rstrip().endswith("("):
+        # Command-line tools such as curl and wget: use the rest of the line.
+        return [line[match.end():]]
+
+    text = line[match.end():]
+    arguments, closed = _split_arguments(text)
+    following = number + 1
+
+    while (
+        not closed
+        and following <= number + MAX_CALL_CONTINUATION_LINES
+        and following <= max(active_lines, default=0)
+    ):
+        if following in active_lines:
+            text += "\n" + active_lines[following]
+            arguments, closed = _split_arguments(text)
+
+        following += 1
+
+    candidates = arguments[:1]
+
+    if re.search(r"\brequest\s*\($", match.group(0)):
+        # The first argument of a generic request call is the HTTP method.
+        candidates = arguments[:2]
+
+    candidates.extend(
+        argument
+        for argument in arguments[1:]
+        if re.match(r"url\s*=", argument)
+    )
+
+    return [candidate for candidate in candidates if candidate]
+
+
+def _host_of(authority: str) -> str:
+    """Extract a lowercase host from a URL authority component."""
+
+    authority = authority.rsplit("@", 1)[-1]
+
+    if authority.startswith("["):
+        return authority[1:].split("]", 1)[0].lower()
+
+    return authority.split(":", 1)[0].rstrip(".").lower()
+
+
+def _is_internal_host(host: str) -> bool:
+    """Check for loopback, private, link-local, or internal hostnames."""
+
+    if not host or "{" in host or "$" in host:
+        return False
+
+    if host == "localhost" or host.endswith(INTERNAL_HOST_SUFFIXES):
+        return True
+
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError:
+        return False
+
+    return not address.is_global
+
+
+def _resolve_literals(
+    candidate: str,
+    number: int,
+    literal_values: dict[str, list[tuple[int, str]]],
+) -> tuple[list[str], list[int]]:
+    """Resolve identifiers in a destination to earlier literal values.
+
+    Returns texts to inspect and the source lines of resolved values.
+    """
+
+    texts = [candidate]
+    source_lines: list[int] = []
+    substituted = candidate
+
+    for name in dict.fromkeys(IDENTIFIER_PATTERN.findall(candidate)):
+        entries = literal_values.get(name)
+
+        if not entries:
+            continue
+
+        before = [entry for entry in entries if entry[0] <= number]
+        source_number, value = before[-1] if before else entries[0]
+
+        texts.append(value)
+        source_lines.append(source_number)
+        substituted = re.sub(
+            rf"\$?\{{\s*{re.escape(name)}\s*\}}",
+            lambda _match, value=value: value,
+            substituted,
+        )
+
+    if substituted != candidate:
+        texts.append(substituted)
+
+    return texts, source_lines
+
+
+def _assess_destination(texts: list[str]) -> list[tuple[str, str, str]]:
+    """Return (severity, reason, evidence) for risky destinations."""
+
+    assessments: list[tuple[str, str, str]] = []
+
+    for text in texts:
+        if CLOUD_METADATA_DESTINATION.search(text):
+            assessments.append(
+                (
+                    "high",
+                    METADATA_REASON,
+                    "Cloud metadata destination used by a network request",
+                )
+            )
+            continue
+
+        for url in URL_PATTERN.finditer(text):
+            scheme = url.group("scheme").lower()
+            host = _host_of(url.group("authority"))
+
+            if scheme in SUSPICIOUS_SCHEMES:
+                assessments.append(
+                    (
+                        "high",
+                        SCHEME_REASON,
+                        "Non-HTTP URL scheme used by a network request",
+                    )
+                )
+            elif _is_internal_host(host):
+                assessments.append(
+                    (
+                        "medium",
+                        INTERNAL_HOST_REASON,
+                        "Internal destination used by a network request",
+                    )
+                )
+
+    return list(dict.fromkeys(assessments))
 
 
 def analyze(code: str) -> list[dict]:
@@ -202,29 +445,39 @@ def analyze(code: str) -> list[dict]:
             "Potentially untrusted destination reaches a network request",
         )
 
-    # Detect network requests targeting cloud metadata endpoints.
-    metadata_lines = [
-        number
-        for number, line in active_lines.items()
-        if CLOUD_METADATA_DESTINATION.search(line)
-    ]
+    # Record simple string-literal assignments so that destinations held in
+    # constants can be resolved.
+    literal_values: dict[str, list[tuple[int, str]]] = {}
 
-    for metadata_number in metadata_lines:
-        nearby_sinks = [
-            sink
-            for sink in sink_lines
-            if abs(sink - metadata_number) <= 4
-        ]
+    for number, line in active_lines.items():
+        assignment = LITERAL_ASSIGNMENT.search(line)
 
-        if not nearby_sinks:
-            continue
+        if assignment:
+            literal_values.setdefault(assignment.group(1), []).append(
+                (number, assignment.group("value"))
+            )
 
-        add_finding(
-            "high",
-            METADATA_REASON,
-            [metadata_number, *nearby_sinks],
-            "Cloud metadata destination near a network-request operation",
-        )
+    # Validate the destination that each network request actually uses.
+    for number, line in active_lines.items():
+        for sink_match in NETWORK_SINK.finditer(line):
+            for candidate in _destination_candidates(
+                active_lines,
+                number,
+                sink_match,
+            ):
+                texts, source_numbers = _resolve_literals(
+                    candidate,
+                    number,
+                    literal_values,
+                )
+
+                for severity, reason, evidence in _assess_destination(texts):
+                    add_finding(
+                        severity,
+                        reason,
+                        [*source_numbers, number],
+                        evidence,
+                    )
 
     return sorted(
         findings,

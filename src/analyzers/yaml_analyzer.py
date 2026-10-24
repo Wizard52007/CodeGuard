@@ -11,6 +11,8 @@ import re
 import yaml
 from yaml.nodes import MappingNode, ScalarNode, SequenceNode
 
+from src.rules import prompt_injection
+
 
 APPROVED_CATEGORIES = {
     "secret_access",
@@ -122,18 +124,6 @@ _RESOURCE_EXHAUSTION = re.compile(
     r"""|\bdd\s+if=/dev/zero\b""",
     re.IGNORECASE,
 )
-
-_AI_TARGETED_INSTRUCTION = re.compile(
-    r"""ignore\s+(?:all\s+)?(?:previous|prior|preceding)\s+instructions"""
-    r"""|disregard\s+(?:all\s+)?(?:previous|prior)\s+instructions"""
-    r"""|reveal\s+(?:the\s+)?(?:secrets|credentials|system prompt)"""
-    r"""|bypass\s+(?:the\s+)?security"""
-    r"""|disable\s+(?:all\s+)?security\s+(?:checks|rules)"""
-    r"""|hide\s+(?:this|the)\s+(?:vulnerability|malicious code|threat)"""
-    r"""|override\s+(?:your\s+)?(?:safety|security)\s+(?:rules|instructions)""",
-    re.IGNORECASE,
-)
-
 
 def analyze(code: str) -> list[dict]:
     """Analyze YAML for security risks without executing its contents."""
@@ -498,17 +488,13 @@ def analyze(code: str) -> list[dict]:
     # Comments are included because instructions can be hidden there.
     # ---------------------------------------------------------
 
-    for number, line in enumerate(lines, start=1):
-        if _AI_TARGETED_INSTRUCTION.search(line):
-            add_finding(
-                "ai_targeted_instructions",
-                "medium",
-                (
-                    "The YAML content contains instruction-like text "
-                    "that may attempt to influence an AI reviewer."
-                ),
-                [number],
-                "AI-targeted instruction pattern",
-            )
+    for finding in prompt_injection.analyze(code):
+        add_finding(
+            finding["category"],
+            finding["severity"],
+            finding["reason"],
+            finding["lines"],
+            finding["evidence"],
+        )
 
     return findings
