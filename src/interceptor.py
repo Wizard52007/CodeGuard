@@ -102,6 +102,8 @@ def validate_assessment(result: Any) -> dict:
             "Vulnerable lines must be positive, sorted, and unique."
         )
 
+    
+
     return result
 
 
