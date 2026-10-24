@@ -335,7 +335,7 @@ def analyze(code: str) -> list[dict[str, Any]]:
                     findings.append(
                         {
                             "category": "dependency_risk",
-                            "severity": "medium",
+                            "severity": "high",
                             "reason": (
                                 "The code invokes a package installation or "
                                 "download command through a subprocess."

@@ -12,13 +12,54 @@ from src.analyzers import (
 )
 from src.language_detector import detect_language
 from src.risk_engine import calculate_risk
+from src.rules import (
+    data_exfiltration,
+    prompt_injection,
+    secret_access,
+    ssrf_network_exfil,
+)
+
+
+SUPPORTED_LANGUAGES = {
+    "python",
+    "bash",
+    "javascript",
+    "sql",
+    "yaml",
+    "markdown",
+}
+
+
+def _deduplicate_findings(
+    findings: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Remove duplicate findings."""
+
+    unique: list[dict[str, Any]] = []
+    seen: set[tuple[Any, ...]] = set()
+
+    for finding in findings:
+        lines = tuple(sorted(set(finding.get("lines", []))))
+        key = (
+            finding.get("category"),
+            lines,
+            finding.get("reason"),
+        )
+
+        if key in seen:
+            continue
+
+        seen.add(key)
+        unique.append(finding)
+
+    return unique
 
 
 def evaluate_code(
     code: str,
     language: str | None = None,
 ) -> dict[str, Any]:
-    """Analyze a snippet and return a structured security assessment."""
+    """Analyze code and return a structured security assessment."""
 
     if not isinstance(code, str):
         raise TypeError("code must be a string")
@@ -27,24 +68,17 @@ def evaluate_code(
         raise TypeError("language must be a string or None")
 
     normalized_language = (
-    language.strip().lower()
-    if language and language.strip()
-    else None
-)
+        language.strip().lower()
+        if language and language.strip()
+        else None
+    )
 
     if (
-       normalized_language is not None
-       and normalized_language not in {
-           "python",
-           "bash",
-           "javascript",
-           "sql",
-           "yaml",
-           "markdown",
-       }
-   ):
+        normalized_language is not None
+        and normalized_language not in SUPPORTED_LANGUAGES
+    ):
         raise ValueError(
-           f"Unsupported language: {normalized_language}"
+            f"Unsupported language: {normalized_language}"
         )
 
     if not code.strip():
@@ -59,20 +93,37 @@ def evaluate_code(
 
     detected_language = normalized_language or detect_language(code)
 
-    findings = []
+    analyzers = {
+        "python": python_analyzer,
+        "bash": bash_analyzer,
+        "javascript": javascript_analyzer,
+        "sql": sql_analyzer,
+        "yaml": yaml_analyzer,
+    }
 
-    if detected_language == "python":
-        findings.extend(python_analyzer.analyze(code))
-    elif detected_language == "bash":
-        findings.extend(bash_analyzer.analyze(code))
-    elif detected_language == "sql":
-        findings.extend(sql_analyzer.analyze(code))
-    elif detected_language == "javascript":
-        findings.extend(javascript_analyzer.analyze(code))
-    elif detected_language == "yaml":
-        findings.extend(yaml_analyzer.analyze(code))
-    elif detected_language == "markdown":
+    findings: list[dict[str, Any]] = []
+
+    # Run the language-specific analyzer.
+    if detected_language == "markdown":
         findings.extend(markdown_analyzer.analyze(code))
+
+    elif detected_language in analyzers:
+        findings.extend(
+            analyzers[detected_language].analyze(code)
+        )
+
+    # Run reusable security rules on supported source languages.
+    if detected_language in {"python", "bash", "javascript"}:
+        findings.extend(secret_access.analyze(code))
+        findings.extend(data_exfiltration.analyze(code))
+        findings.extend(ssrf_network_exfil.analyze(code))
+
+    # Markdown already performs AI-targeted instruction detection.
+    if detected_language != "markdown":
+        findings.extend(prompt_injection.analyze(code))
+
+    # Remove duplicates before calculating risk.
+    findings = _deduplicate_findings(findings)
 
     risk = calculate_risk(findings)
 

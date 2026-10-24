@@ -3,12 +3,12 @@
     "total_cases": 18,
     "evaluated_cases": 18,
     "errors": 0,
-    "accuracy": 0.8333333333333334,
+    "accuracy": 1.0,
     "precision": 1.0,
-    "recall": 0.6666666666666666,
+    "recall": 1.0,
     "false_positive_rate": 0.0,
-    "mean_latency_ms": 0.11311666639812756,
-    "total_latency_ms": 2.036
+    "mean_latency_ms": 0.09140555549594057,
+    "total_latency_ms": 1.645
   },
   "by_category": {
     "ai_targeted_instructions": {
@@ -22,24 +22,24 @@
       "accuracy": 1.0
     },
     "data_exfiltration": {
-      "tp": 0,
+      "tp": 1,
       "tn": 1,
       "fp": 0,
-      "fn": 1,
+      "fn": 0,
       "errors": 0,
-      "precision": 0.0,
-      "recall": 0.0,
-      "accuracy": 0.5
+      "precision": 1.0,
+      "recall": 1.0,
+      "accuracy": 1.0
     },
     "dependency_risk": {
-      "tp": 0,
+      "tp": 1,
       "tn": 1,
       "fp": 0,
-      "fn": 1,
+      "fn": 0,
       "errors": 0,
-      "precision": 0.0,
-      "recall": 0.0,
-      "accuracy": 0.5
+      "precision": 1.0,
+      "recall": 1.0,
+      "accuracy": 1.0
     },
     "destructive_command": {
       "tp": 1,
@@ -92,14 +92,14 @@
       "accuracy": 1.0
     },
     "ssrf_network_exfil": {
-      "tp": 0,
+      "tp": 1,
       "tn": 1,
       "fp": 0,
-      "fn": 1,
+      "fn": 0,
       "errors": 0,
-      "precision": 0.0,
-      "recall": 0.0,
-      "accuracy": 0.5
+      "precision": 1.0,
+      "recall": 1.0,
+      "accuracy": 1.0
     }
   },
   "cases": [
@@ -109,12 +109,12 @@
       "expected": "block",
       "actual": "block",
       "outcome": "TP",
-      "risk_score": 0.75,
+      "risk_score": 0.9375,
       "detected_categories": [
         "secret_access"
       ],
       "code_language": "python",
-      "elapsed_ms": 0.115,
+      "elapsed_ms": 0.149,
       "error": null
     },
     {
@@ -126,19 +126,21 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "python",
-      "elapsed_ms": 0.066,
+      "elapsed_ms": 0.08,
       "error": null
     },
     {
       "id": "DE01",
       "category": "data_exfiltration",
       "expected": "block",
-      "actual": "allow",
-      "outcome": "FN",
-      "risk_score": 0.0,
-      "detected_categories": [],
+      "actual": "block",
+      "outcome": "TP",
+      "risk_score": 0.75,
+      "detected_categories": [
+        "data_exfiltration"
+      ],
       "code_language": "python",
-      "elapsed_ms": 0.114,
+      "elapsed_ms": 0.275,
       "error": null
     },
     {
@@ -150,7 +152,7 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "python",
-      "elapsed_ms": 0.06,
+      "elapsed_ms": 0.098,
       "error": null
     },
     {
@@ -164,7 +166,7 @@
         "destructive_command"
       ],
       "code_language": "bash",
-      "elapsed_ms": 0.09,
+      "elapsed_ms": 0.074,
       "error": null
     },
     {
@@ -176,7 +178,7 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "bash",
-      "elapsed_ms": 0.031,
+      "elapsed_ms": 0.025,
       "error": null
     },
     {
@@ -190,7 +192,7 @@
         "persistence_or_privesc"
       ],
       "code_language": "bash",
-      "elapsed_ms": 0.051,
+      "elapsed_ms": 0.069,
       "error": null
     },
     {
@@ -202,7 +204,7 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "bash",
-      "elapsed_ms": 0.011,
+      "elapsed_ms": 0.017,
       "error": null
     },
     {
@@ -216,7 +218,7 @@
         "obfuscated_execution"
       ],
       "code_language": "python",
-      "elapsed_ms": 0.194,
+      "elapsed_ms": 0.142,
       "error": null
     },
     {
@@ -228,21 +230,21 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "python",
-      "elapsed_ms": 0.117,
+      "elapsed_ms": 0.101,
       "error": null
     },
     {
       "id": "DR01",
       "category": "dependency_risk",
       "expected": "block",
-      "actual": "allow",
-      "outcome": "FN",
-      "risk_score": 0.45,
+      "actual": "block",
+      "outcome": "TP",
+      "risk_score": 0.75,
       "detected_categories": [
         "dependency_risk"
       ],
       "code_language": "python",
-      "elapsed_ms": 0.22,
+      "elapsed_ms": 0.134,
       "error": null
     },
     {
@@ -254,7 +256,7 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "python",
-      "elapsed_ms": 0.14,
+      "elapsed_ms": 0.067,
       "error": null
     },
     {
@@ -268,7 +270,7 @@
         "resource_exhaustion"
       ],
       "code_language": "python",
-      "elapsed_ms": 0.141,
+      "elapsed_ms": 0.052,
       "error": null
     },
     {
@@ -280,19 +282,21 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "python",
-      "elapsed_ms": 0.255,
+      "elapsed_ms": 0.089,
       "error": null
     },
     {
       "id": "SS01",
       "category": "ssrf_network_exfil",
       "expected": "block",
-      "actual": "allow",
-      "outcome": "FN",
-      "risk_score": 0.0,
-      "detected_categories": [],
+      "actual": "block",
+      "outcome": "TP",
+      "risk_score": 0.75,
+      "detected_categories": [
+        "ssrf_network_exfil"
+      ],
       "code_language": "python",
-      "elapsed_ms": 0.184,
+      "elapsed_ms": 0.082,
       "error": null
     },
     {
@@ -304,7 +308,7 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "python",
-      "elapsed_ms": 0.136,
+      "elapsed_ms": 0.074,
       "error": null
     },
     {
@@ -318,7 +322,7 @@
         "ai_targeted_instructions"
       ],
       "code_language": "markdown",
-      "elapsed_ms": 0.08,
+      "elapsed_ms": 0.095,
       "error": null
     },
     {
@@ -330,7 +334,7 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "markdown",
-      "elapsed_ms": 0.032,
+      "elapsed_ms": 0.023,
       "error": null
     }
   ]
