@@ -4,6 +4,8 @@ from typing import Literal
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
+from src.interceptor import guarded_operation
+
 
 ThreatCategory = Literal[
     "secret_access",
@@ -43,6 +45,23 @@ class EvaluateResponse(BaseModel):
     code_language: CodeLanguage
     reason: str
     vulnerable_lines: list[int]
+
+
+class InterceptionResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    decision: Literal["allow", "block", "error"]
+    analysis_complete: bool
+    operation_called: bool
+    reason: str
+
+
+class InterceptDemoResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    assessment: EvaluateResponse | None
+    interception: InterceptionResult
+    approved_operation_calls: int = Field(ge=0)
 
 
 app = FastAPI(
@@ -107,3 +126,48 @@ def evaluate(
             status_code=503,
             detail="Security analysis unavailable. Code was not executed.",
         ) from exc
+
+@app.post("/demo/intercept", response_model=InterceptDemoResponse)
+def intercept_demo(
+    request: EvaluateRequest,
+    evaluator: Callable[[str], dict] = Depends(get_evaluator),
+) -> InterceptDemoResponse:
+    """Controlled execution-gate demonstration.
+
+    The submitted code is analyzed as text only and is never executed.
+    The approved operation only increments a counter local to this request
+    and receives no submitted code. The counter shows whether the gate
+    invoked the operation.
+    """
+    captured: dict = {}
+    marker = {"calls": 0}
+
+    def capturing_evaluator(code: str) -> dict:
+        result = evaluator(code)
+        captured["assessment"] = result
+        return result
+
+    def approved_operation() -> None:
+        marker["calls"] += 1
+
+    interception = guarded_operation(
+        request.code,
+        capturing_evaluator,
+        approved_operation,
+    )
+
+    assessment = None
+
+    if "assessment" in captured:
+        try:
+            assessment = EvaluateResponse.model_validate(
+                captured["assessment"]
+            )
+        except Exception:
+            assessment = None
+
+    return InterceptDemoResponse(
+        assessment=assessment,
+        interception=InterceptionResult.model_validate(interception),
+        approved_operation_calls=marker["calls"],
+    )

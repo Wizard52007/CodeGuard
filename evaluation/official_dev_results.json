@@ -1,0 +1,983 @@
+{
+  "dataset": "C:\\Users\\Sanket\\AppData\\Local\\Temp\\opencode\\hackathon_ps\\ps3\\Problem Statement 3\\codeguard_dev.jsonl",
+  "total_cases": 42,
+  "correct": 42,
+  "errors": 0,
+  "accuracy": 1.0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "false_positive_rate": 0.0,
+  "confusion_matrix": {
+    "true_positive": 30,
+    "true_negative": 12,
+    "false_positive": 0,
+    "false_negative": 0
+  },
+  "mean_latency_ms": 1.0274404761904763,
+  "p95_latency_ms": 1.3694,
+  "by_language": {
+    "bash": {
+      "total": 2,
+      "correct": 2,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "tn": 1,
+      "fp": 0,
+      "fn": 0
+    },
+    "javascript": {
+      "total": 1,
+      "correct": 1,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "tn": 0,
+      "fp": 0,
+      "fn": 0
+    },
+    "markdown": {
+      "total": 1,
+      "correct": 1,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "tn": 0,
+      "fp": 0,
+      "fn": 0
+    },
+    "python": {
+      "total": 36,
+      "correct": 36,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 25,
+      "tn": 11,
+      "fp": 0,
+      "fn": 0
+    },
+    "sql": {
+      "total": 1,
+      "correct": 1,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "tn": 0,
+      "fp": 0,
+      "fn": 0
+    },
+    "yaml": {
+      "total": 1,
+      "correct": 1,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "tn": 0,
+      "fp": 0,
+      "fn": 0
+    }
+  },
+  "by_category": {
+    "ai_targeted_instructions": {
+      "total": 4,
+      "correct": 4,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 4,
+      "tn": 0,
+      "fp": 0,
+      "fn": 0
+    },
+    "benign": {
+      "total": 12,
+      "correct": 12,
+      "accuracy": 1.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "tn": 12,
+      "fp": 0,
+      "fn": 0
+    },
+    "data_exfiltration": {
+      "total": 3,
+      "correct": 3,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 3,
+      "tn": 0,
+      "fp": 0,
+      "fn": 0
+    },
+    "dependency_risk": {
+      "total": 3,
+      "correct": 3,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 3,
+      "tn": 0,
+      "fp": 0,
+      "fn": 0
+    },
+    "destructive_command": {
+      "total": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 5,
+      "tn": 0,
+      "fp": 0,
+      "fn": 0
+    },
+    "obfuscated_execution": {
+      "total": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 5,
+      "tn": 0,
+      "fp": 0,
+      "fn": 0
+    },
+    "persistence_or_privesc": {
+      "total": 2,
+      "correct": 2,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 2,
+      "tn": 0,
+      "fp": 0,
+      "fn": 0
+    },
+    "resource_exhaustion": {
+      "total": 3,
+      "correct": 3,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 3,
+      "tn": 0,
+      "fp": 0,
+      "fn": 0
+    },
+    "secret_access": {
+      "total": 4,
+      "correct": 4,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 4,
+      "tn": 0,
+      "fp": 0,
+      "fn": 0
+    },
+    "ssrf_network_exfil": {
+      "total": 3,
+      "correct": 3,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 3,
+      "tn": 0,
+      "fp": 0,
+      "fn": 0
+    }
+  },
+  "results": [
+    {
+      "id": "cg_benign_0001",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "benign",
+      "expected_verdict": "allow",
+      "actual_verdict": "allow",
+      "correct": true,
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "vulnerable_lines": [],
+      "reason": "No configured security rules detected a threat.",
+      "elapsed_ms": 1.2403,
+      "error": null
+    },
+    {
+      "id": "cg_data_exfiltration_0010",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "data_exfiltration",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "resource_exhaustion"
+      ],
+      "vulnerable_lines": [
+        8
+      ],
+      "reason": "The code contains a while True loop that may continue indefinitely without an exit condition.",
+      "elapsed_ms": 1.1151,
+      "error": null
+    },
+    {
+      "id": "cg_data_exfiltration_0011",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "data_exfiltration",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "data_exfiltration"
+      ],
+      "vulnerable_lines": [
+        10,
+        15,
+        16
+      ],
+      "reason": "A value associated with a potentially sensitive identifier appears to flow into a network request payload. Review the source, destination, and authorization context.",
+      "elapsed_ms": 1.3518,
+      "error": null
+    },
+    {
+      "id": "cg_benign_0005",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "benign",
+      "expected_verdict": "allow",
+      "actual_verdict": "allow",
+      "correct": true,
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "vulnerable_lines": [],
+      "reason": "No configured security rules detected a threat.",
+      "elapsed_ms": 0.9756,
+      "error": null
+    },
+    {
+      "id": "cg_data_exfiltration_0016",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "data_exfiltration",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "data_exfiltration"
+      ],
+      "vulnerable_lines": [
+        11
+      ],
+      "reason": "A SELECT statement is built by inserting non-constant values into the SQL text, which can expose unintended data. Use query parameters.",
+      "elapsed_ms": 1.0306,
+      "error": null
+    },
+    {
+      "id": "cg_dependency_risk_0002",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "dependency_risk",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.9375,
+      "detected_categories": [
+        "dependency_risk"
+      ],
+      "vulnerable_lines": [
+        7,
+        10
+      ],
+      "reason": "The code invokes a package installation or download command through a subprocess.",
+      "elapsed_ms": 0.9866,
+      "error": null
+    },
+    {
+      "id": "cg_dependency_risk_0009",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "dependency_risk",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.9375,
+      "detected_categories": [
+        "dependency_risk"
+      ],
+      "vulnerable_lines": [
+        9,
+        12
+      ],
+      "reason": "The code invokes a package installation or download command through a subprocess.",
+      "elapsed_ms": 1.0488,
+      "error": null
+    },
+    {
+      "id": "cg_benign_0006",
+      "language_expected": "bash",
+      "language_detected": "bash",
+      "category": "benign",
+      "expected_verdict": "allow",
+      "actual_verdict": "allow",
+      "correct": true,
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "vulnerable_lines": [],
+      "reason": "No configured security rules detected a threat.",
+      "elapsed_ms": 0.3695,
+      "error": null
+    },
+    {
+      "id": "cg_destructive_command_0002",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "destructive_command",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "destructive_command"
+      ],
+      "vulnerable_lines": [
+        9
+      ],
+      "reason": "The code runs a risky command through os.system. A recursive or forced file-removal command may delete important data.",
+      "elapsed_ms": 1.1329,
+      "error": null
+    },
+    {
+      "id": "cg_destructive_command_0004",
+      "language_expected": "sql",
+      "language_detected": "sql",
+      "category": "destructive_command",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "destructive_command"
+      ],
+      "vulnerable_lines": [
+        10
+      ],
+      "reason": "The query contains a UPDATE statement without a limiting WHERE clause, so it affects every row in the table.",
+      "elapsed_ms": 0.1696,
+      "error": null
+    },
+    {
+      "id": "cg_destructive_command_0007",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "destructive_command",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "obfuscated_execution"
+      ],
+      "vulnerable_lines": [
+        8
+      ],
+      "reason": "The code passes a dynamically supplied command to subprocess.run for shell execution.",
+      "elapsed_ms": 1.0857,
+      "error": null
+    },
+    {
+      "id": "cg_benign_0007",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "benign",
+      "expected_verdict": "allow",
+      "actual_verdict": "allow",
+      "correct": true,
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "vulnerable_lines": [],
+      "reason": "No configured security rules detected a threat.",
+      "elapsed_ms": 0.9562,
+      "error": null
+    },
+    {
+      "id": "cg_destructive_command_0020",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "destructive_command",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "destructive_command"
+      ],
+      "vulnerable_lines": [
+        12
+      ],
+      "reason": "A DELETE statement is built by inserting non-constant values into the SQL text, so its scope can be altered by the input. Use query parameters.",
+      "elapsed_ms": 1.2278,
+      "error": null
+    },
+    {
+      "id": "cg_destructive_command_0021",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "destructive_command",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "obfuscated_execution"
+      ],
+      "vulnerable_lines": [
+        13
+      ],
+      "reason": "The code uses eval() to evaluate a dynamically supplied expression.",
+      "elapsed_ms": 1.017,
+      "error": null
+    },
+    {
+      "id": "cg_obfuscated_execution_0002",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "obfuscated_execution",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "obfuscated_execution"
+      ],
+      "vulnerable_lines": [
+        13
+      ],
+      "reason": "The code uses eval() to evaluate a dynamically supplied expression.",
+      "elapsed_ms": 0.952,
+      "error": null
+    },
+    {
+      "id": "cg_obfuscated_execution_0004",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "obfuscated_execution",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "obfuscated_execution"
+      ],
+      "vulnerable_lines": [
+        3
+      ],
+      "reason": "The code imports a module through __import__ using a name that is computed at runtime.",
+      "elapsed_ms": 0.9105,
+      "error": null
+    },
+    {
+      "id": "cg_obfuscated_execution_0013",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "obfuscated_execution",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "obfuscated_execution"
+      ],
+      "vulnerable_lines": [
+        11
+      ],
+      "reason": "The code uses exec() to evaluate a dynamically supplied expression.",
+      "elapsed_ms": 0.8922,
+      "error": null
+    },
+    {
+      "id": "cg_benign_0008",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "benign",
+      "expected_verdict": "allow",
+      "actual_verdict": "allow",
+      "correct": true,
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "vulnerable_lines": [],
+      "reason": "No configured security rules detected a threat.",
+      "elapsed_ms": 0.8545,
+      "error": null
+    },
+    {
+      "id": "cg_obfuscated_execution_0017",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "obfuscated_execution",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "obfuscated_execution"
+      ],
+      "vulnerable_lines": [
+        11
+      ],
+      "reason": "The code passes a dynamically supplied command to os.system for shell execution.",
+      "elapsed_ms": 0.8788,
+      "error": null
+    },
+    {
+      "id": "cg_obfuscated_execution_0018",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "obfuscated_execution",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "obfuscated_execution"
+      ],
+      "vulnerable_lines": [
+        10
+      ],
+      "reason": "The code deserializes data with shelve.open from a source that is not trusted, which can run arbitrary code when loaded.",
+      "elapsed_ms": 0.9649,
+      "error": null
+    },
+    {
+      "id": "cg_benign_0009",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "benign",
+      "expected_verdict": "allow",
+      "actual_verdict": "allow",
+      "correct": true,
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "vulnerable_lines": [],
+      "reason": "No configured security rules detected a threat.",
+      "elapsed_ms": 0.8298,
+      "error": null
+    },
+    {
+      "id": "cg_persistence_or_privesc_0005",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "persistence_or_privesc",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "persistence_or_privesc"
+      ],
+      "vulnerable_lines": [
+        8
+      ],
+      "reason": "The code writes to a file that grants persistence or elevated privileges.",
+      "elapsed_ms": 0.8564,
+      "error": null
+    },
+    {
+      "id": "cg_persistence_or_privesc_0010",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "persistence_or_privesc",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "persistence_or_privesc"
+      ],
+      "vulnerable_lines": [
+        15
+      ],
+      "reason": "The code writes to a file that grants persistence or elevated privileges.",
+      "elapsed_ms": 1.0522,
+      "error": null
+    },
+    {
+      "id": "cg_benign_0010",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "benign",
+      "expected_verdict": "allow",
+      "actual_verdict": "allow",
+      "correct": true,
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "vulnerable_lines": [],
+      "reason": "No configured security rules detected a threat.",
+      "elapsed_ms": 1.2506,
+      "error": null
+    },
+    {
+      "id": "cg_resource_exhaustion_0007",
+      "language_expected": "bash",
+      "language_detected": "bash",
+      "category": "resource_exhaustion",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "resource_exhaustion"
+      ],
+      "vulnerable_lines": [
+        13
+      ],
+      "reason": "The command writes an endless data source without a size limit, which can fill the available disk space.",
+      "elapsed_ms": 0.3714,
+      "error": null
+    },
+    {
+      "id": "cg_resource_exhaustion_0008",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "resource_exhaustion",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "resource_exhaustion"
+      ],
+      "vulnerable_lines": [
+        11
+      ],
+      "reason": "A very large loop creates sockets, threads, or processes without releasing them, which can exhaust system resources.",
+      "elapsed_ms": 0.849,
+      "error": null
+    },
+    {
+      "id": "cg_benign_0011",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "benign",
+      "expected_verdict": "allow",
+      "actual_verdict": "allow",
+      "correct": true,
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "vulnerable_lines": [],
+      "reason": "No configured security rules detected a threat.",
+      "elapsed_ms": 1.1369,
+      "error": null
+    },
+    {
+      "id": "cg_secret_access_0001",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "secret_access",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "secret_access"
+      ],
+      "vulnerable_lines": [
+        9
+      ],
+      "reason": "The code opens a well-known credential file.",
+      "elapsed_ms": 1.3526,
+      "error": null
+    },
+    {
+      "id": "cg_secret_access_0007",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "secret_access",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "secret_access"
+      ],
+      "vulnerable_lines": [
+        9
+      ],
+      "reason": "The code opens a well-known credential file.",
+      "elapsed_ms": 1.1129,
+      "error": null
+    },
+    {
+      "id": "cg_secret_access_0013",
+      "language_expected": "javascript",
+      "language_detected": "javascript",
+      "category": "secret_access",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.9979,
+      "detected_categories": [
+        "data_exfiltration",
+        "secret_access"
+      ],
+      "vulnerable_lines": [
+        2,
+        5,
+        9
+      ],
+      "reason": "The code appears to contain a hardcoded credential or secret value. A sensitive value appears to flow into data or headers associated with a network request. The source appears to contain a hardcoded credential value. The source accesses an environment variable whose name suggests a sensitive credential. A value associated with a potentially sensitive identifier appears to flow into a network request payload. Review the source, destination, and authorization context.",
+      "elapsed_ms": 3.1493,
+      "error": null
+    },
+    {
+      "id": "cg_benign_0012",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "benign",
+      "expected_verdict": "allow",
+      "actual_verdict": "allow",
+      "correct": true,
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "vulnerable_lines": [],
+      "reason": "No configured security rules detected a threat.",
+      "elapsed_ms": 1.1001,
+      "error": null
+    },
+    {
+      "id": "cg_benign_0013",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "benign",
+      "expected_verdict": "allow",
+      "actual_verdict": "allow",
+      "correct": true,
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "vulnerable_lines": [],
+      "reason": "No configured security rules detected a threat.",
+      "elapsed_ms": 1.3694,
+      "error": null
+    },
+    {
+      "id": "cg_secret_access_0021",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "secret_access",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.9844,
+      "detected_categories": [
+        "secret_access"
+      ],
+      "vulnerable_lines": [
+        6,
+        7
+      ],
+      "reason": "A variable with a sensitive name is assigned a hardcoded string value. The source appears to contain a hardcoded credential value.",
+      "elapsed_ms": 1.1039,
+      "error": null
+    },
+    {
+      "id": "cg_ssrf_network_exfil_0007",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "ssrf_network_exfil",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "ssrf_network_exfil"
+      ],
+      "vulnerable_lines": [
+        9
+      ],
+      "reason": "A network request uses a non-HTTP URL scheme that is commonly used to reach internal services. Verify that the destination is expected.",
+      "elapsed_ms": 0.7565,
+      "error": null
+    },
+    {
+      "id": "cg_ssrf_network_exfil_0010",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "ssrf_network_exfil",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "ssrf_network_exfil"
+      ],
+      "vulnerable_lines": [
+        5,
+        13
+      ],
+      "reason": "A network request appears to target a cloud metadata endpoint. Verify that the destination is expected and that access cannot be influenced by untrusted input.",
+      "elapsed_ms": 0.9022,
+      "error": null
+    },
+    {
+      "id": "cg_benign_0014",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "benign",
+      "expected_verdict": "allow",
+      "actual_verdict": "allow",
+      "correct": true,
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "vulnerable_lines": [],
+      "reason": "No configured security rules detected a threat.",
+      "elapsed_ms": 0.9059,
+      "error": null
+    },
+    {
+      "id": "cg_ai_targeted_instructions_0001",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "ai_targeted_instructions",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "ai_targeted_instructions"
+      ],
+      "vulnerable_lines": [
+        5
+      ],
+      "reason": "The text contains an instruction-like pattern that may attempt to override an AI agent's security behavior.",
+      "elapsed_ms": 0.8954,
+      "error": null
+    },
+    {
+      "id": "cg_ai_targeted_instructions_0002",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "ai_targeted_instructions",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "ai_targeted_instructions"
+      ],
+      "vulnerable_lines": [
+        6,
+        7
+      ],
+      "reason": "The text contains an instruction-like pattern that may attempt to override an AI agent's security behavior.",
+      "elapsed_ms": 0.9873,
+      "error": null
+    },
+    {
+      "id": "cg_benign_0015",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "benign",
+      "expected_verdict": "allow",
+      "actual_verdict": "allow",
+      "correct": true,
+      "risk_score": 0.0,
+      "detected_categories": [],
+      "vulnerable_lines": [],
+      "reason": "No configured security rules detected a threat.",
+      "elapsed_ms": 0.8111,
+      "error": null
+    },
+    {
+      "id": "cg_ai_targeted_instructions_0015",
+      "language_expected": "yaml",
+      "language_detected": "yaml",
+      "category": "ai_targeted_instructions",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "ai_targeted_instructions"
+      ],
+      "vulnerable_lines": [
+        13,
+        14
+      ],
+      "reason": "The text contains an instruction-like pattern that may attempt to override an AI agent's security behavior.",
+      "elapsed_ms": 0.9061,
+      "error": null
+    },
+    {
+      "id": "cg_ai_targeted_instructions_0016",
+      "language_expected": "markdown",
+      "language_detected": "markdown",
+      "category": "ai_targeted_instructions",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.75,
+      "detected_categories": [
+        "ai_targeted_instructions"
+      ],
+      "vulnerable_lines": [
+        12
+      ],
+      "reason": "The text contains an instruction-like pattern that may attempt to override an AI agent's security behavior.",
+      "elapsed_ms": 0.2122,
+      "error": null
+    },
+    {
+      "id": "cg_multi_0001",
+      "language_expected": "python",
+      "language_detected": "python",
+      "category": "resource_exhaustion, ssrf_network_exfil, dependency_risk",
+      "expected_verdict": "block",
+      "actual_verdict": "block",
+      "correct": true,
+      "risk_score": 0.9844,
+      "detected_categories": [
+        "dependency_risk",
+        "resource_exhaustion",
+        "ssrf_network_exfil"
+      ],
+      "vulnerable_lines": [
+        13,
+        22,
+        23,
+        28
+      ],
+      "reason": "The code contains a while True loop that may continue indefinitely without an exit condition. The code invokes a package installation or download command through a subprocess. A network request appears to target a cloud metadata endpoint. Verify that the destination is expected and that access cannot be influenced by untrusted input.",
+      "elapsed_ms": 2.0809,
+      "error": null
+    }
+  ]
+}
