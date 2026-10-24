@@ -116,6 +116,98 @@ Detection depends on the implemented rules. Static analysis cannot identify ever
 
 ---
 
+## System Architecture
+
+CodeGuard is a static security analysis layer designed to evaluate potentially unsafe code before a guarded operation is allowed to proceed. It combines language-specific analyzers, reusable security detection rules, a centralized assessment pipeline, and a fail-closed interception workflow.
+
+### Architecture Diagram
+
+```mermaid
+flowchart TD
+    A["Code Submission"] --> B["FastAPI Layer"]
+
+    B --> C["Request Validation"]
+    C --> D["Central Detection Engine"]
+
+    D --> E["Language Identification"]
+
+    E --> F["Python Analyzer"]
+    E --> G["JavaScript Analyzer"]
+    E --> H["Bash Analyzer"]
+    E --> I["SQL Analyzer"]
+    E --> J["YAML Analyzer"]
+    E --> K["Markdown Analyzer"]
+
+    F --> L["Reusable Security Rules"]
+    G --> L
+    H --> L
+    I --> L
+    J --> L
+    K --> L
+
+    L --> M["Security Assessment"]
+
+    M --> N["Risk Score"]
+    M --> O["Threat Categories"]
+    M --> P["Verdict"]
+    M --> Q["Reason and Vulnerable Lines"]
+
+    N --> R["Structured API Response"]
+    O --> R
+    P --> R
+    Q --> R
+
+    R --> S["API Consumer / Frontend"]
+
+    M --> T["Guarded Operation / Interceptor"]
+    T --> U{"Security Decision"}
+    U -->|Allow| V["Permit Guarded Operation"]
+    U -->|Block| W["Prevent Operation"]
+
+    style D fill:#1d4ed8,color:#ffffff,stroke:#1e40af
+    style M fill:#7c3aed,color:#ffffff,stroke:#6d28d9
+    style U fill:#b45309,color:#ffffff,stroke:#92400e
+    style W fill:#b91c1c,color:#ffffff,stroke:#991b1b
+    style V fill:#15803d,color:#ffffff,stroke:#166534
+```
+
+### Core Components
+
+| Component                           | Responsibility                                                                                                                                                           |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **FastAPI Layer**                   | Exposes HTTP endpoints for health checks, code evaluation, and interception demonstrations.                                                                              |
+| **Request Validation**              | Validates incoming requests before passing code to the detection pipeline.                                                                                               |
+| **Central Detection Engine**        | Coordinates language identification and the appropriate security analysis.                                                                                               |
+| **Language-Specific Analyzers**     | Inspect code or configuration according to the supported language and analysis rules.                                                                                    |
+| **Reusable Security Rules**         | Detect patterns associated with threats such as secret access, data exfiltration, destructive commands, resource exhaustion, dependency risks, and suspicious execution. |
+| **Security Assessment**             | Produces the verdict, risk score, threat categories, explanation, and vulnerable-line information.                                                                       |
+| **Guarded Operation / Interceptor** | Demonstrates how an assessment can control whether a guarded operation is permitted or blocked.                                                                          |
+| **Frontend / API Consumer**         | Submits code and displays the resulting security assessment.                                                                                                             |
+
+### Evaluation Workflow
+
+1. **Code submission:** A client submits a code snippet through the API.
+2. **Request validation:** The API validates the request format.
+3. **Language identification:** The central detector determines which analysis path to use.
+4. **Static analysis:** The applicable analyzer examines the submitted code using the implemented security rules.
+5. **Risk assessment:** CodeGuard produces a structured assessment containing the verdict, risk score, threat categories, explanation, and relevant line numbers.
+6. **Response generation:** The API returns the assessment, including evaluation latency.
+7. **Interception:** In the guarded-operation workflow, the assessment is used to demonstrate an allow-or-block decision.
+
+### Fail-Closed Security Design
+
+CodeGuard includes a fail-closed interception workflow intended to avoid permitting guarded operations when a valid security decision cannot be obtained.
+
+This is distinct from the `/evaluate` endpoint: returning a `block` verdict does not itself prevent an unrelated process from executing the submitted code. Enforcement depends on the guarded operation or integration that consumes the assessment.
+
+### Design Principle
+
+**Detect before execution. Assess the risk. Enforce the decision.**
+
+CodeGuard is intended to provide an additional security layer for evaluating potentially unsafe code. It is not a replacement for operating-system isolation, sandboxing, least-privilege execution, or comprehensive application security controls.
+
+---
+
 ## 🏗️ Project Structure
 
 ```text
