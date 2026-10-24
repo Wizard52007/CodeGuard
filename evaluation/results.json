@@ -7,8 +7,8 @@
     "precision": 1.0,
     "recall": 1.0,
     "false_positive_rate": 0.0,
-    "mean_latency_ms": 0.3452722206323718,
-    "total_latency_ms": 6.215
+    "mean_latency_ms": 0.09428333255022557,
+    "total_latency_ms": 1.697
   },
   "by_category": {
     "ai_targeted_instructions": {
@@ -114,7 +114,7 @@
         "secret_access"
       ],
       "code_language": "python",
-      "elapsed_ms": 0.29,
+      "elapsed_ms": 0.195,
       "error": null
     },
     {
@@ -126,7 +126,7 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "python",
-      "elapsed_ms": 0.235,
+      "elapsed_ms": 0.105,
       "error": null
     },
     {
@@ -140,7 +140,7 @@
         "data_exfiltration"
       ],
       "code_language": "python",
-      "elapsed_ms": 0.566,
+      "elapsed_ms": 0.258,
       "error": null
     },
     {
@@ -152,7 +152,7 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "python",
-      "elapsed_ms": 0.231,
+      "elapsed_ms": 0.112,
       "error": null
     },
     {
@@ -166,7 +166,7 @@
         "destructive_command"
       ],
       "code_language": "bash",
-      "elapsed_ms": 0.348,
+      "elapsed_ms": 0.06,
       "error": null
     },
     {
@@ -178,7 +178,7 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "bash",
-      "elapsed_ms": 0.076,
+      "elapsed_ms": 0.019,
       "error": null
     },
     {
@@ -192,7 +192,7 @@
         "persistence_or_privesc"
       ],
       "code_language": "bash",
-      "elapsed_ms": 0.167,
+      "elapsed_ms": 0.064,
       "error": null
     },
     {
@@ -204,7 +204,7 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "bash",
-      "elapsed_ms": 0.144,
+      "elapsed_ms": 0.017,
       "error": null
     },
     {
@@ -218,7 +218,7 @@
         "obfuscated_execution"
       ],
       "code_language": "python",
-      "elapsed_ms": 0.539,
+      "elapsed_ms": 0.154,
       "error": null
     },
     {
@@ -230,7 +230,7 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "python",
-      "elapsed_ms": 0.382,
+      "elapsed_ms": 0.105,
       "error": null
     },
     {
@@ -244,7 +244,7 @@
         "dependency_risk"
       ],
       "code_language": "python",
-      "elapsed_ms": 0.713,
+      "elapsed_ms": 0.136,
       "error": null
     },
     {
@@ -256,7 +256,7 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "python",
-      "elapsed_ms": 0.623,
+      "elapsed_ms": 0.067,
       "error": null
     },
     {
@@ -270,7 +270,7 @@
         "resource_exhaustion"
       ],
       "code_language": "python",
-      "elapsed_ms": 0.531,
+      "elapsed_ms": 0.053,
       "error": null
     },
     {
@@ -282,7 +282,7 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "python",
-      "elapsed_ms": 0.345,
+      "elapsed_ms": 0.091,
       "error": null
     },
     {
@@ -296,7 +296,7 @@
         "ssrf_network_exfil"
       ],
       "code_language": "python",
-      "elapsed_ms": 0.596,
+      "elapsed_ms": 0.127,
       "error": null
     },
     {
@@ -308,7 +308,7 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "python",
-      "elapsed_ms": 0.291,
+      "elapsed_ms": 0.093,
       "error": null
     },
     {
@@ -322,7 +322,7 @@
         "ai_targeted_instructions"
       ],
       "code_language": "markdown",
-      "elapsed_ms": 0.096,
+      "elapsed_ms": 0.025,
       "error": null
     },
     {
@@ -334,7 +334,7 @@
       "risk_score": 0.0,
       "detected_categories": [],
       "code_language": "markdown",
-      "elapsed_ms": 0.041,
+      "elapsed_ms": 0.017,
       "error": null
     }
   ]
